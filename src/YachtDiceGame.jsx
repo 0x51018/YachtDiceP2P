@@ -107,9 +107,29 @@ export class YachtDiceGame extends Phaser.Scene {
     categories.forEach((category, index) => {
       const y = 110 + index * 34 + (index > 5 ? 68 : 0);
       this.add.text(1000-20, y, category.text, { fontSize: '20px', fill: '#000', fontStyle: 'bold' }).setOrigin(0.5, 0.5);
-      this.scoreTexts.player1[category.key] = this.add.text(1142, y, '-', { fontSize: '20px', fill: '#000', fontStyle: 'bold' }).setOrigin(0.5, 0.5).setInteractive();
-      this.scoreTexts.player1[category.key].on('pointerdown', () => this.confirmScore(category.key));
-      this.scoreTexts.player2[category.key] = this.add.text(1222, y, '-', { fontSize: '20px', fill: '#000', fontStyle: 'bold' }).setOrigin(0.5, 0.5);
+
+      const score1Bg = this.add.rectangle(935+280-45-48, y-1, 89, 32, 0xf1edeb).setOrigin(0.5, 0.5).setInteractive();
+      const score2Bg = this.add.rectangle(935+280-45-48+91, y-1, 89, 32, 0xf1edeb).setOrigin(0.5, 0.5).setInteractive();
+      score1Bg.on('pointerout', () => score1Bg.setFillStyle(0xf1edeb));
+      score2Bg.on('pointerout', () => score2Bg.setFillStyle(0xf1edeb));
+
+      this.scoreTexts.player1[category.key] = this.add.text(1142-20, y, '-', { fontSize: '20px', fill: '#000', fontStyle: 'bold' }).setOrigin(0.5, 0.5).setInteractive();
+      this.scoreTexts.player2[category.key] = this.add.text(1232-20, y, '-', { fontSize: '20px', fill: '#000', fontStyle: 'bold' }).setOrigin(0.5, 0.5).setInteractive();
+      
+      if(this.isFirstPlayer){
+        score1Bg.on('pointerdown', () => this.confirmScore(category.key));
+        score1Bg.on('pointerover', () => score1Bg.setFillStyle(0xffddeb));
+        this.scoreTexts.player1[category.key].on('pointerdown', () => this.confirmScore(category.key));
+        this.scoreTexts.player1[category.key].on('pointerover', () => score1Bg.setFillStyle(0xffddeb));
+        this.scoreTexts.player1[category.key].on('pointerout', () => score1Bg.setFillStyle(0xf1edeb));
+      }
+      if(!this.isFirstPlayer){
+        score2Bg.on('pointerdown', () => this.confirmScore(category.key));
+        score2Bg.on('pointerover', () => score2Bg.setFillStyle(0xffddeb));
+        this.scoreTexts.player2[category.key].on('pointerdown', () => this.confirmScore(category.key));
+        this.scoreTexts.player2[category.key].on('pointerover', () => score2Bg.setFillStyle(0xffddeb));
+        this.scoreTexts.player2[category.key].on('pointerout', () => score2Bg.setFillStyle(0xf1edeb));
+      } 
     });
 
     this.sumText = {

@@ -14,9 +14,12 @@ const App = () => {
   const [opponentNickname, setOpponentNickname] = useState('');
   const [localNickname, setLocalNickname] = useState('');
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [joinRequestSent, setJoinRequestSent] = useState(false);
+  const idPrefix = 'yacht-';
 
   useEffect(() => {
-    const newPeer = new Peer();
+    // Create a new peer with a prefixed ID
+    const newPeer = new Peer(idPrefix + createRandomId());
     setPeer(newPeer);
 
     newPeer.on('open', id => {
@@ -37,12 +40,17 @@ const App = () => {
     };
   }, []);
 
+  const createRandomId = () => {
+    return Math.random().toString(36).slice(2, 7).toUpperCase();
+  };
+
   const handleCreateMatch = () => {
     setIsMatchCreated(true);
   };
 
   const handleJoinMatch = () => {
-    const conn = peer.connect(opponentId);
+    const conn = peer.connect(idPrefix + opponentId);  // Use the prefixed ID
+    setJoinRequestSent(true);
     conn.on('open', () => {
       setConnection(conn);
       conn.send({ type: 'nickname', nickname: localNickname });
@@ -97,7 +105,7 @@ const App = () => {
           <h1>Yacht Dice Game</h1>
           {isMatchCreated ? (
             <div className="match-created">
-              <p>Your Peer ID: <span className="highlight">{peerId}</span></p>
+              <p>Your Peer ID: <span className="highlight">{peerId.slice(idPrefix.length)}</span></p> {/* Show only the room ID without prefix */}
               {opponentNickname ? (
                 <div className="opponent-joined">
                   <p>{opponentNickname} has joined the game</p>
@@ -120,12 +128,13 @@ const App = () => {
               <div className="join-match">
                 <input
                   type="text"
-                  placeholder="Opponent's Peer ID"
+                  placeholder="Opponent's Room Code"
                   value={opponentId}
                   onChange={e => setOpponentId(e.target.value)}
                   className="input-field"
                 />
                 <button onClick={handleJoinMatch} className="join-button">Join Match</button>
+                {joinRequestSent && <p className="join-feedback">Join request sent. Waiting for opponent to respond...</p>}
               </div>
             </div>
           )}
@@ -199,6 +208,11 @@ const App = () => {
         }
         .game-container {
           margin-top: 2rem;
+        }
+        .join-feedback {
+          margin-top: 1rem;
+          color: #555;
+          font-style: italic;
         }
       `}</style>
     </div>
